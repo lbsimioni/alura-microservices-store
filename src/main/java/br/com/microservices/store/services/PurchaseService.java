@@ -1,7 +1,7 @@
 package br.com.microservices.store.services;
 
-import br.com.microservices.store.controllers.dtos.PurchaseRequestDTO;
 import br.com.microservices.store.controllers.dtos.ProviderInfoDTO;
+import br.com.microservices.store.controllers.dtos.PurchaseRequestDTO;
 import lombok.AccessLevel;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,9 +19,9 @@ public class PurchaseService {
     public void execute(PurchaseRequestDTO requestDTO) {
         var client = new RestTemplate();
         var exchange = client.exchange(
-                String.format("%s/information/%s", providerUrl, requestDTO.getAddress().getState()),
+                String.format("%s/info/%s", providerUrl, requestDTO.getAddress().getState()),
                 HttpMethod.GET, null, ProviderInfoDTO.class);
 
-
+        System.out.println(exchange);
     }
 }
