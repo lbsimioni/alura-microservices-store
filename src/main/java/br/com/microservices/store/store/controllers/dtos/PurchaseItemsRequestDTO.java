@@ -1,4 +1,4 @@
-package br.com.microservices.store.store.controllers.dtos.requests;
+package br.com.microservices.store.store.controllers.dtos;
 
 import lombok.Data;
 
