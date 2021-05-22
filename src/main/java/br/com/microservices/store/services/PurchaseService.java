@@ -1,7 +1,7 @@
-package br.com.microservices.store.store.services;
+package br.com.microservices.store.services;
 
-import br.com.microservices.store.store.controllers.dtos.ProviderInfoDTO;
-import br.com.microservices.store.store.controllers.dtos.PurchaseRequestDTO;
+import br.com.microservices.store.controllers.dtos.PurchaseRequestDTO;
+import br.com.microservices.store.controllers.dtos.ProviderInfoDTO;
 import lombok.AccessLevel;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;

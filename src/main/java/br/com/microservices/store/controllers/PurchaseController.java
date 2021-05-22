@@ -1,7 +1,7 @@
-package br.com.microservices.store.store.controllers;
+package br.com.microservices.store.controllers;
 
-import br.com.microservices.store.store.controllers.dtos.PurchaseRequestDTO;
-import br.com.microservices.store.store.services.PurchaseService;
+import br.com.microservices.store.controllers.dtos.PurchaseRequestDTO;
+import br.com.microservices.store.services.PurchaseService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
