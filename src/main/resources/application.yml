@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: 'store'
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
