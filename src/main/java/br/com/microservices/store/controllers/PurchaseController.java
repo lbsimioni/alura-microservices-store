@@ -6,6 +6,8 @@ import br.com.microservices.store.services.PurchaseService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +20,11 @@ public class PurchaseController {
 
     @Autowired
     private final PurchaseService purchaseService;
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Purchase> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(purchaseService.getById(id));
+    }
 
     @PostMapping
     public ResponseEntity<Purchase> purchase(@RequestBody PurchaseRequestDTO requestDTO){
