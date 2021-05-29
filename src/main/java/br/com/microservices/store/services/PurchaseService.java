@@ -4,6 +4,7 @@ import br.com.microservices.store.client.ProviderClient;
 import br.com.microservices.store.dtos.ProviderInfoDTO;
 import br.com.microservices.store.dtos.PurchaseRequestDTO;
 import br.com.microservices.store.dtos.RequestInfoDTO;
+import br.com.microservices.store.exceptions.ResourceNotFoundException;
 import br.com.microservices.store.model.Purchase;
 import br.com.microservices.store.repositories.PurchaseRepository;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
@@ -24,13 +25,16 @@ public class PurchaseService {
     private final PurchaseRepository purchaseRepository;
 
     @HystrixCommand(threadPoolKey = "GetPurchaseByIdThreadPool")
-    public Purchase getById(Long id) {
-        return purchaseRepository.findById(id).orElseGet(Purchase::new);
+    public Purchase getById(final Long id) {
+        return purchaseRepository.findById(id).orElseThrow(() -> {
+            log.warn("Purchase not found with id: {}", id);
+            throw new ResourceNotFoundException("Purchase not found");
+        });
     }
 
-    @HystrixCommand(fallbackMethod = "realizePurchaseFallback",
-            threadPoolKey = "realizePurchaseThreadPool")
-    public Purchase execute(PurchaseRequestDTO requestDTO) {
+    @HystrixCommand(fallbackMethod = "creationPurchaseFallback",
+            threadPoolKey = "creationPurchaseThreadPool")
+    public Purchase execute(final PurchaseRequestDTO requestDTO) {
 
         ProviderInfoDTO info = providerClient.getInfoByState(requestDTO.getAddress().getState());
         log.info("Provider information: " + info);
@@ -48,7 +52,8 @@ public class PurchaseService {
         return purchase;
     }
 
-    public Purchase realizePurchaseFallback(PurchaseRequestDTO requestDTO) {
+    public Purchase creationPurchaseFallback(final PurchaseRequestDTO requestDTO) {
+        log.warn("Doing creation purchase fallback for request: {}", requestDTO);
         var purchase = new Purchase();
         purchase.setDestinyAddress(requestDTO.getAddress().toString());
         return purchase;

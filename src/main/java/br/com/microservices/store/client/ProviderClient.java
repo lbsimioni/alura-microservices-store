@@ -14,8 +14,8 @@ import java.util.List;
 public interface ProviderClient {
 
     @RequestMapping("/info/{state}")
-    ProviderInfoDTO getInfoByState(@PathVariable String state);
+    ProviderInfoDTO getInfoByState(@PathVariable final String state);
 
     @PostMapping("/requests")
-    RequestInfoDTO realizeRequest(List<PurchaseItemsRequestDTO> items);
+    RequestInfoDTO realizeRequest(final List<PurchaseItemsRequestDTO> items);
 }
