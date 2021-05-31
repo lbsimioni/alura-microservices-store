@@ -13,9 +13,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
-@RequestMapping("/purchase")
+@RequestMapping("/purchases")
 @AllArgsConstructor
 @Slf4j
 public class PurchaseController {
@@ -32,10 +33,15 @@ public class PurchaseController {
     }
 
     @PostMapping
-    public ResponseEntity<Purchase> purchase(@RequestBody final PurchaseRequestDTO requestDTO) {
+    public ResponseEntity<Purchase> purchase(
+            @RequestBody final PurchaseRequestDTO requestDTO,
+            UriComponentsBuilder uriBuilder) {
         log.info("Creating purchase for: {}", requestDTO);
         var purchase = purchaseService.execute(requestDTO);
         log.info("Purchase created: {}", purchase);
-        return ResponseEntity.ok(purchase);
+
+        var uri = uriBuilder.path("/purchases/{id}").buildAndExpand(purchase.getRequestId()).toUri();
+
+        return ResponseEntity.created(uri).body(purchase);
     }
 }
