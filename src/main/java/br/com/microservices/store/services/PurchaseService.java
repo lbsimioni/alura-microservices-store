@@ -1,6 +1,8 @@
 package br.com.microservices.store.services;
 
-import br.com.microservices.store.client.ProviderClient;
+import br.com.microservices.store.clients.DeliveryClient;
+import br.com.microservices.store.clients.ProviderClient;
+import br.com.microservices.store.dtos.DeliveryDTO;
 import br.com.microservices.store.dtos.ProviderInfoDTO;
 import br.com.microservices.store.dtos.PurchaseRequestDTO;
 import br.com.microservices.store.dtos.RequestInfoDTO;
@@ -13,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+
 @Service
 @Slf4j
 @AllArgsConstructor
@@ -22,8 +26,12 @@ public class PurchaseService {
     private final ProviderClient providerClient;
 
     @Autowired
+    private final DeliveryClient deliveryClient;
+
+    @Autowired
     private final PurchaseRepository purchaseRepository;
 
+    // Bulkhead
     @HystrixCommand(threadPoolKey = "GetPurchaseByIdThreadPool")
     public Purchase getById(final Long id) {
         return purchaseRepository.findById(id).orElseThrow(() -> {
@@ -42,14 +50,24 @@ public class PurchaseService {
         RequestInfoDTO request = providerClient.realizeRequest(requestDTO.getItems());
         log.info("Request information: " + request);
 
-        var purchase = new Purchase();
-        purchase.setRequestId(request.getId());
-        purchase.setPreparationTime(request.getPreparationTime());
-        purchase.setDestinyAddress(requestDTO.getAddress().toString());
+        var deliveryDTO = DeliveryDTO.builder()
+                .requestId(request.getId())
+                .forecastDate(LocalDate.now().plusDays(request.getPreparationTime()))
+                .originAddress(info.getAddress())
+                .destinationAddress(requestDTO.getAddress().toString())
+                .build();
 
-        purchaseRepository.save(purchase);
+        var voucher = deliveryClient.reservationDelivery(deliveryDTO);
 
-        return purchase;
+        var purchase = Purchase.builder()
+                .requestId(request.getId())
+                .preparationTime(request.getPreparationTime())
+                .destinyAddress(requestDTO.getAddress().toString())
+                .deliveryForecast(voucher.getDeliveryForecast())
+                .voucher(voucher.getNumber())
+                .build();
+
+        return purchaseRepository.save(purchase);
     }
 
     public Purchase creationPurchaseFallback(final PurchaseRequestDTO requestDTO) {

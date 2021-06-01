@@ -1,4 +1,4 @@
-package br.com.microservices.store.client;
+package br.com.microservices.store.clients;
 
 import br.com.microservices.store.dtos.ProviderInfoDTO;
 import br.com.microservices.store.dtos.PurchaseItemsRequestDTO;
