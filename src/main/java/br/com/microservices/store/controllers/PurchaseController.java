@@ -1,7 +1,7 @@
 package br.com.microservices.store.controllers;
 
 import br.com.microservices.store.dtos.PurchaseRequestDTO;
-import br.com.microservices.store.model.Purchase;
+import br.com.microservices.store.models.Purchase;
 import br.com.microservices.store.services.PurchaseService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

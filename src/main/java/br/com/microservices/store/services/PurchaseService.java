@@ -7,7 +7,8 @@ import br.com.microservices.store.dtos.ProviderInfoDTO;
 import br.com.microservices.store.dtos.PurchaseRequestDTO;
 import br.com.microservices.store.dtos.RequestInfoDTO;
 import br.com.microservices.store.exceptions.ResourceNotFoundException;
-import br.com.microservices.store.model.Purchase;
+import br.com.microservices.store.models.Purchase;
+import br.com.microservices.store.models.enums.PurchaseState;
 import br.com.microservices.store.repositories.PurchaseRepository;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import lombok.AllArgsConstructor;
@@ -44,11 +45,23 @@ public class PurchaseService {
             threadPoolKey = "creationPurchaseThreadPool")
     public Purchase execute(final PurchaseRequestDTO requestDTO) {
 
+        var purchase = purchaseRepository.save(Purchase.builder()
+                .state(PurchaseState.RECEIVED)
+                .destinyAddress(requestDTO.getAddress().toString())
+                .build());
+
+        requestDTO.setPurchaseId(purchase.getId());
+
         ProviderInfoDTO info = providerClient.getInfoByState(requestDTO.getAddress().getState());
         log.info("Provider information: " + info);
 
         RequestInfoDTO request = providerClient.realizeRequest(requestDTO.getItems());
         log.info("Request information: " + request);
+        purchase = purchaseRepository.save(purchase.toBuilder()
+                .state(PurchaseState.REQUEST_REALIZED)
+                .requestId(request.getId())
+                .preparationTime(request.getPreparationTime())
+                .build());
 
         var deliveryDTO = DeliveryDTO.builder()
                 .requestId(request.getId())
@@ -59,18 +72,16 @@ public class PurchaseService {
 
         var voucher = deliveryClient.reservationDelivery(deliveryDTO);
 
-        var purchase = Purchase.builder()
-                .requestId(request.getId())
-                .preparationTime(request.getPreparationTime())
-                .destinyAddress(requestDTO.getAddress().toString())
+        return purchaseRepository.save(purchase.toBuilder()
+                .state(PurchaseState.DELIVERY_RESERVED)
                 .deliveryForecast(voucher.getDeliveryForecast())
                 .voucher(voucher.getNumber())
-                .build();
-
-        return purchaseRepository.save(purchase);
+                .build());
     }
 
     public Purchase creationPurchaseFallback(final PurchaseRequestDTO requestDTO) {
+        if(requestDTO.getPurchaseId() != null) return getById(requestDTO.getPurchaseId());
+
         log.warn("Doing creation purchase fallback for request: {}", requestDTO);
         var purchase = new Purchase();
         purchase.setDestinyAddress(requestDTO.getAddress().toString());
