@@ -1,5 +1,6 @@
-package br.com.microservices.store.exceptions.handlers;
+package br.com.alura.microservices.store.exceptions.handlers;
 
+import br.com.alura.microservices.store.exceptions.BaseException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,12 @@ public class ExceptionControllerHandler {
     public ResponseEntity<Void> baseException(final HttpClientErrorException.NotFound e, final HttpServletRequest request) {
         log(e, request);
         return ResponseEntity.notFound().build();
+    }
+
+    @ExceptionHandler(BaseException.class)
+    public ResponseEntity<Void> baseException(final BaseException e, final HttpServletRequest request) {
+        log(e, request);
+        return ResponseEntity.status(e.getStatus()).build();
     }
 
     private void log(final Exception e, final HttpServletRequest request) {

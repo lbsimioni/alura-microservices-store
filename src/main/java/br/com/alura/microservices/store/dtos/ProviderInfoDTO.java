@@ -1,4 +1,4 @@
-package br.com.microservices.store.dtos;
+package br.com.alura.microservices.store.dtos;
 
 import lombok.Data;
 import lombok.ToString;

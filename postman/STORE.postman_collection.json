@@ -1,0 +1,53 @@
+{
+	"info": {
+		"_postman_id": "d4013b51-b830-4437-97c0-1ea206d9fd05",
+		"name": "STORE",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "[STORE] Purchase",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": [\n        {\n            \"id\": 1,\n            \"amount\": 5\n        },\n        {\n            \"id\": 2,\n            \"amount\": 1\n        }\n    ],\n    \"address\": {\n        \"street\": \"Rua da Maria\",\n        \"number\": \"123\",\n        \"state\": \"GO\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{storeApi}}/purchases",
+					"host": [
+						"{{storeApi}}"
+					],
+					"path": [
+						"purchases"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "[STORE] Get By Id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{storeApi}}/purchases/1",
+					"host": [
+						"{{storeApi}}"
+					],
+					"path": [
+						"purchases",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
